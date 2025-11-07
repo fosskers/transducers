@@ -530,12 +530,31 @@ need for the caller to manually pass a REDUCER."
                  (map (lambda (hm) (gethash "Name" hm))))
            #'cons '("Alice,35" "Bob,26"))
 
+#+nil
+(transduce #'from-csv #'first '("Name,Money,Age" "Colin,\"10,000\",37"))
+
 (defun split-csv-line (line)
   "Split a LINE of CSV data in a sane way.
 
 This removes any extra whitespace that might be hanging around between elements."
-  (mapcar (lambda (s) (string-trim " " s))
-          (string-split line :separator #\,)))
+  (let ((mode :comma))
+    (transduce (comp (group-by (lambda (c)
+                                 (cond ((and (eq mode :comma) (char= c #\,))
+                                        nil)
+                                       ((and (eq mode :quote) (char= c #\"))
+                                        (setf mode :comma)
+                                        t)
+                                       ((and (eq mode :comma) (char= c #\"))
+                                        (setf mode :quote)
+                                        t)
+                                       (t t))))
+                     (map (lambda (chars) (cl:concatenate 'cl:string chars)))
+                     (map (lambda (s) (string-trim " \"" s)))
+                     (filter (lambda (s) (not (string= s ",")))))
+               #'cons line)))
+
+#+nil
+(split-csv-line "Colin,   \"10,000\"   ,37")
 
 (defun into-csv (headers)
   "Transducer: Given a sequence of HEADERS, rerender each item in the data stream

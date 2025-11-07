@@ -282,7 +282,8 @@
 (define-test "CSV: Reading and Writing"
   (is equal '("Name,Age" "Colin,35" "Jack,26")
       (t:transduce (t:comp #'t:from-csv (t:into-csv '("Name" "Age")))
-                   #'t:cons '("Name,Age,Hair" "Colin,35,Blond" "Jack,26,Black"))))
+                   #'t:cons '("Name,Age,Hair" "Colin,35,Blond" "Jack,26,Black")))
+  (is equal "10,000" (gethash "Money" (t:transduce #'t:from-csv #'t:first '("Name,Money,Age" "Colin,\"10,000\",37")))))
 
 (define-test "Fset: Immutable Collections"
   (let ((set (fset:set 1 2 3 1)))

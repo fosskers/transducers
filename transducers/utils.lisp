@@ -60,6 +60,8 @@ Borrowed from Clojure, thanks guys."
     (mapc (lambda (k v) (setf (gethash k table) v)) keys vals)
     table))
 
+;; NOTE: 2025-11-08 This is no longer used within `transducers' itself, but I
+;; leave it here as I know I use it secretly in other projects via `::'.
 (declaim (ftype (function (cl:string &key (:separator character)) list) string-split))
 (defun string-split (string &key (separator #\space))
   "Split a string into a list of substrings according to some configurable

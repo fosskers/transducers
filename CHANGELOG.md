@@ -1,5 +1,12 @@
 # Transducers
 
+### Unreleased
+
+#### Fixed
+
+- `from-csv` now accounts for quotes, which ignore internal commas. Example:
+  `Foo,"10,000",Bar`.
+
 ### 1.5.0 (2025-08-16)
 
 #### Added

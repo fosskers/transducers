@@ -95,10 +95,10 @@ The elements are sorted once before the median is extracted.
              ;;
              ;; It would be nice if there were a generic way to compare, or if
              ;; the user could pass in a function for this.
-             (let* ((cmp    (etypecase (car acc)
+             (let* ((cmp    (typecase (car acc)
                               (cl:string #'string<)
                               (cl:character #'char<)
-                              (t #'<)))
+                              (otherwise #'<)))
                     (len    (length acc))
                     (ix     (floor (/ len 2)))
                     (sorted (sort acc cmp)))

@@ -1,5 +1,5 @@
 (defsystem "transducers"
-  :version "1.5.0"
+  :version "1.5.1"
   :author "Colin Woodbury <colin@fosskers.ca>"
   :license "MPL-2.0"
   :depends-on ()

@@ -52,7 +52,8 @@ Looking for Transducers in other Lisps? Check out the [[https://github.com/fossk
 - [[#api][API]]
   - [[#transducers][Transducers]]
     - [[#pass-map][pass, map]]
-    - [[#filter-filter-map-unique-unique-by-dedup][filter, filter-map, unique, unique-by, dedup]]
+    - [[#filter-filter-map][filter, filter-map]]
+    - [[#unique-unique-by-dedup][unique, unique-by, dedup]]
     - [[#drop-drop-while-take-take-while][drop, drop-while, take, take-while]]
     - [[#uncons-concatenate-flatten][uncons, concatenate, flatten]]
     - [[#segment-window-group-by][segment, window, group-by]]
@@ -67,7 +68,8 @@ Looking for Transducers in other Lisps? Check out the [[https://github.com/fossk
     - [[#vector-bit-vector][vector, bit-vector]]
     - [[#string-base-string][string, base-string]]
     - [[#hash-table][hash-table]]
-    - [[#count-average-median-quantities][count, average, median, quantities]]
+    - [[#count-quantities][count, quantities]]
+    - [[#average-median][average, median]]
     - [[#any-all][any?, all?]]
     - [[#partition][partition]]
     - [[#first-last-find][first, last, find]]
@@ -303,7 +305,7 @@ Apply a function F to all elements of the transduction.
 #+RESULTS:
 : (2 3 4)
 
-*** filter, filter-map, unique, unique-by, dedup
+*** filter, filter-map
 
 Only keep elements from the transduction that satisfy PRED.
 
@@ -325,6 +327,8 @@ that are non-nil.
 
 #+RESULTS:
 : (2 5 8)
+
+*** unique, unique-by, dedup
 
 Only allow values to pass through the transduction once each. Stateful; this
 uses a set internally so could get quite heavy if you're not careful.
@@ -723,7 +727,7 @@ Collect a stream of key-value cons pairs into a hash table.
 #+RESULTS:
 : #<COMMON-LISP:HASH-TABLE :TEST EQUAL :COUNT 3 {1004E83BF3}>
 
-*** count, average, median, quantities
+*** count, quantities
 
 Count the number of elements that made it through the transduction.
 
@@ -734,6 +738,19 @@ Count the number of elements that made it through the transduction.
 
 #+RESULTS:
 : 5
+
+Count the occurrences of every item in the transduction, given some equality
+predicate.
+
+#+begin_src lisp :exports both
+(in-package :transducers)
+(transduce #'pass (quantities #'eql) '(1 1 1 0 2 4 1 4 9))
+#+end_src
+
+#+RESULTS:
+: #<COMMON-LISP:HASH-TABLE :TEST EQL :COUNT 5 {10094FE823}>
+
+*** average, median
 
 Calculate the average value of all numeric elements in a transduction.
 
@@ -756,17 +773,6 @@ median is extracted.
 
 #+RESULTS:
 : 1
-
-Count the occurrences of every item in the transduction, given some equality
-predicate.
-
-#+begin_src lisp :exports both
-(in-package :transducers)
-(transduce #'pass (quantities #'eql) '(1 1 1 0 2 4 1 4 9))
-#+end_src
-
-#+RESULTS:
-: #<COMMON-LISP:HASH-TABLE :TEST EQL :COUNT 5 {10094FE823}>
 
 *** any?, all?
 

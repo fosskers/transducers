@@ -1,5 +1,13 @@
 # Transducers
 
+### Unreleased
+
+#### Added
+
+- Source: `chain` to compose any number of Generators.
+- Source: The `generator` type and its functions have been exposed so that
+  others can write their own Generators.
+
 ### 1.5.1 (2025-11-13)
 
 #### Fixed

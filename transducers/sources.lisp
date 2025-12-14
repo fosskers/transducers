@@ -115,3 +115,61 @@ strings are vectors too, so:
 
 #+nil
 (transduce (take 10) #'cons (cycle '(1 2 3)))
+
+;; TODO: 2025-12-14 Extend this to chain any type of source, not just
+;; generators. Would probably require that the various `*-reduce' functions are
+;; made more generic so that proper dispatch can be done on each sub source,
+;; while maintaining the current reduction state.
+#+nil
+(defun chain (&rest gens)
+  "Source: Chain any number of generators together. When the current one exhausts
+itself, the next one begins."
+  (cond ((null gens) (lambda () *done*))
+        (t (let ((head (generator-func (car gens)))
+                 (tail (cdr gens)))
+             (make-generator
+              :func
+              (lambda ()
+                (let ((curr (funcall head)))
+                  (cond ((and (eq curr *done*)
+                              (null tail))
+                         *done*)
+                        ((eq curr *done*)
+                         (setf head (generator-func (car tail)))
+                         (setf tail (cdr tail))
+                         (funcall head))
+                        (t curr)))))))))
+
+(defun chain (&rest gens)
+  "Source: Chain any number of generators together. When the current one exhausts
+itself, the next one begins."
+  (cond ((null gens) (lambda () *done*))
+        (t (let ((head (generator-func (car gens)))
+                 (tail (cdr gens)))
+             (labels ((recur ()
+                        (let ((curr (funcall head)))
+                          (cond ((and (eq curr *done*)
+                                      (null tail))
+                                 *done*)
+                                ((eq curr *done*)
+                                 (setf head (generator-func (car tail)))
+                                 (setf tail (cdr tail))
+                                 (recur))
+                                (t curr)))))
+               (make-generator :func #'recur))))))
+
+#+nil
+(defun silly ()
+  (let ((curr 0))
+    (make-generator :func (lambda ()
+                            (cond ((> curr 10) *done*)
+                                  (t (let ((prev curr))
+                                       (incf curr)
+                                       prev)))))))
+
+#+nil
+(defun dead ()
+  (make-generator :func (lambda () *done*)))
+
+#+nil
+(transduce #'pass #'cons (chain (silly) (dead) (silly)))

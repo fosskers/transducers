@@ -32,7 +32,8 @@
            #:for #:for-each)
   ;; --- Sources --- ;;
   (:export #:ints #:cycle #:repeat #:random #:shuffle
-           #:plist #:reversed)
+           #:plist #:reversed
+           #:chain #:generator #:make-generator #:generator-func #:*done*)
   ;; --- Conditions --- ;;
   (:export #:empty-transduction
            #:imbalanced-plist

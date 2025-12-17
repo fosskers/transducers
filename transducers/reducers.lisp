@@ -134,6 +134,30 @@ The elements are sorted once before the median is extracted.
 #+nil
 (transduce (filter #'evenp) #'average '(1 3 5))
 
+(defun ratio (pred)
+  "Reducer: The percentage of items that satisfied a predicate. The final value
+will always be between 0 and 1.
+
+# Conditions
+
+- `empty-transduction': when no values made it through the transduction."
+  (lambda (&optional (acc nil a?) (input nil i?))
+    (cond ((and a? i?)
+           (incf (avg-count acc))
+           (when (funcall pred input)
+             (incf (avg-total acc)))
+           acc)
+          ((and a? (not i?))
+           (if (zerop (avg-count acc))
+               (error 'empty-transduction :msg "`ratio' called on an empty transduction.")
+               (/ (avg-total acc) (avg-count acc))))
+          (t (make-avg :count 0 :total 0)))))
+
+#+nil
+(transduce #'pass (ratio #'evenp) #(1 2 3 4 5 6))
+#+nil
+(transduce #'pass (ratio #'evenp) #())
+
 (declaim (ftype (function ((function (t) *)) *) any?))
 (defun any? (pred)
   "Reducer: Yield t if any element in the transduction satisfies PRED.

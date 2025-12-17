@@ -3,7 +3,7 @@
   (:shadow #:map #:concatenate #:log #:step #:split
            #:string #:base-string #:vector #:bit-vector #:hash-table
            #:cons #:count #:first #:last #:max #:min #:find
-           #:random)
+           #:random #:ratio)
   ;; --- Entry Points --- ;;
   (:export #:transduce)
   ;; --- Transducers -- ;;

@@ -69,7 +69,7 @@ Looking for Transducers in other Lisps? Check out the [[https://github.com/fossk
     - [[#string-base-string][string, base-string]]
     - [[#hash-table][hash-table]]
     - [[#count-quantities][count, quantities]]
-    - [[#average-median][average, median]]
+    - [[#average-median-ratio][average, median, ratio]]
     - [[#any-all][any?, all?]]
     - [[#partition][partition]]
     - [[#first-last-find][first, last, find]]
@@ -750,9 +750,9 @@ predicate.
 #+RESULTS:
 : #<COMMON-LISP:HASH-TABLE :TEST EQL :COUNT 5 {10094FE823}>
 
-*** average, median
+*** average, median, ratio
 
-Calculate the average value of all numeric elements in a transduction.
+=average=: Calculate the average value of all numeric elements in a transduction.
 
 #+begin_src lisp :exports both
 (in-package :transducers)
@@ -762,9 +762,9 @@ Calculate the average value of all numeric elements in a transduction.
 #+RESULTS:
 : 7/2
 
-Calculate the median value of all elements in a transduction, provided that they
-are numbers, strings, or characters. The elements are sorted once before the
-median is extracted.
+=median=: Calculate the median value of all elements in a transduction, provided
+that they are numbers, strings, or characters. The elements are sorted once
+before the median is extracted.
 
 #+begin_src lisp :exports both
 (in-package :transducers)
@@ -773,6 +773,17 @@ median is extracted.
 
 #+RESULTS:
 : 1
+
+=ratio=: The percentage of items that satisfied a predicate. The final value will
+always be between 0 and 1.
+
+#+begin_src lisp :exports both
+(in-package :transducers)
+(transduce #'pass (ratio #'evenp) #(1 2 3 4 5 6))
+#+end_src
+
+#+RESULTS:
+: 1/2
 
 *** any?, all?
 

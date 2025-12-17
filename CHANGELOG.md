@@ -4,6 +4,7 @@
 
 #### Added
 
+- Reducer: `ratio` for the percentage of items that pass a predicate.
 - Source: `chain` to compose any number of Generators.
 - Source: The `generator` type and its functions have been exposed so that
   others can write their own Generators.

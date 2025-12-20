@@ -24,7 +24,7 @@
            #:vector #:bit-vector
            #:string #:base-string
            #:hash-table
-           #:count #:average #:median #:quantities
+           #:count #:average #:median #:quantities #:ratio
            #:any? #:all? #:anyp #:allp #:any #:all
            #:partition
            #:first #:last

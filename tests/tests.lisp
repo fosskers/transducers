@@ -53,7 +53,9 @@
   (fail      (t:transduce (t:filter #'evenp) #'t:average '(1 3 5)))
   (is = 4    (t:transduce #'t:pass #'t:median '(1 2 3 4 5 6)))
   (is string-equal "b" (t:transduce #'t:pass #'t:median '("a" "c" "b")))
-  (fail      (t:transduce #'t:pass #'t:median '())))
+  (fail      (t:transduce #'t:pass #'t:median '()))
+  (is = 1/2  (t:transduce #'t:pass (t:ratio #'evenp) #(1 2 3 4 5 6)))
+  (fail      (t:transduce #'t:pass (t:ratio #'evenp) #())))
 
 (define-test "Partitions"
   :parent reduction

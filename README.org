@@ -68,8 +68,8 @@ Looking for Transducers in other Lisps? Check out the [[https://github.com/fossk
     - [[#vector-bit-vector][vector, bit-vector]]
     - [[#string-base-string][string, base-string]]
     - [[#hash-table][hash-table]]
-    - [[#count-quantities][count, quantities]]
-    - [[#average-median-ratio][average, median, ratio]]
+    - [[#count-quantities-ratio][count, quantities, ratio]]
+    - [[#average-median][average, median]]
     - [[#any-all][any?, all?]]
     - [[#partition][partition]]
     - [[#first-last-find][first, last, find]]
@@ -85,9 +85,9 @@ Looking for Transducers in other Lisps? Check out the [[https://github.com/fossk
     - [[#reduced-reduced-reduced-val][reduced, reduced?, reduced-val]]
 - [[#example-gallery][Example Gallery]]
   - [[#reading-lines-from-a-file][Reading lines from a File]]
+  - [[#shuffle-a-vector][Shuffle a Vector]]
   - [[#reducing-into-property-lists-and-assocation-lists][Reducing into Property Lists and Assocation Lists]]
   - [[#json-calculating-average-age][JSON: Calculating average age]]
-  - [[#sieve-of-eratosthenes][Sieve of Eratosthenes]]
 - [[#writing-your-own-primitives][Writing your own Primitives]]
   - [[#transducers-1][Transducers]]
     - [[#map---a-simple-transformation][map - A simple transformation]]
@@ -97,7 +97,7 @@ Looking for Transducers in other Lisps? Check out the [[https://github.com/fossk
   - [[#reducers-1][Reducers]]
     - [[#count---simple-cumulative-state][count - Simple cumulative state]]
     - [[#cons---some-post-processing][cons - Some post-processing]]
-    - [[#anyp---short-circuiting][anyp - Short-circuiting]]
+    - [[#any---short-circuiting][any? - Short-circuiting]]
   - [[#sources-1][Sources]]
 - [[#limitations][Limitations]]
 - [[#resources][Resources]]
@@ -285,7 +285,7 @@ Multiple transducer functions can be chained together with ~comp~.
 
 *** pass, map
 
-Just pass along each value of the transduction.
+=pass=: Just pass along each value of the transduction.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -295,7 +295,7 @@ Just pass along each value of the transduction.
 #+RESULTS:
 : (1 2 3)
 
-Apply a function F to all elements of the transduction.
+=map=: Apply a function F to all elements of the transduction.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -307,7 +307,7 @@ Apply a function F to all elements of the transduction.
 
 *** filter, filter-map
 
-Only keep elements from the transduction that satisfy PRED.
+=filter=: Only keep elements from the transduction that satisfy PRED.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -317,8 +317,8 @@ Only keep elements from the transduction that satisfy PRED.
 #+RESULTS:
 : (2 4)
 
-Apply a function F to the elements of the transduction, but only keep results
-that are non-nil.
+=filter-map=: Apply a function F to the elements of the transduction, but only
+keep results that are non-nil.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -330,8 +330,8 @@ that are non-nil.
 
 *** unique, unique-by, dedup
 
-Only allow values to pass through the transduction once each. Stateful; this
-uses a set internally so could get quite heavy if you're not careful.
+=unique=: Only allow values to pass through the transduction once each. Stateful;
+this uses a set internally so could get quite heavy if you're not careful.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -341,11 +341,11 @@ uses a set internally so could get quite heavy if you're not careful.
 #+RESULTS:
 : (1 2 3 "abc")
 
-Only allow values to pass through the transduction once each, determined by some
-key-mapping function. The function is only used to map the values to something
-they should be compared to; the original values themselves are what is passed
-through. Stateful; this uses a Hash Table internally so could get quite heavy if
-you're not careful.
+=unique-by=: Only allow values to pass through the transduction once each,
+determined by some key-mapping function. The function is only used to map the
+values to something they should be compared to; the original values themselves
+are what is passed through. Stateful; this uses a Hash Table internally so could
+get quite heavy if you're not careful.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -355,7 +355,7 @@ you're not careful.
 #+RESULTS:
 : ((:A . 1) (:B . 2) (:D . 3))
 
-Remove adjacent duplicates from the transduction.
+=dedup=: Remove adjacent duplicates from the transduction.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -367,7 +367,7 @@ Remove adjacent duplicates from the transduction.
 
 *** drop, drop-while, take, take-while
 
-Drop the first N elements of the transduction.
+=drop=: Drop the first N elements of the transduction.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -377,7 +377,7 @@ Drop the first N elements of the transduction.
 #+RESULTS:
 : (4 5)
 
-Drop elements from the front of the transduction that satisfy PRED.
+=drop-while=: Drop elements from the front of the transduction that satisfy PRED.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -387,7 +387,7 @@ Drop elements from the front of the transduction that satisfy PRED.
 #+RESULTS:
 : (7 8 9)
 
-Keep only the first N elements of the transduction.
+=take=: Keep only the first N elements of the transduction.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -397,8 +397,8 @@ Keep only the first N elements of the transduction.
 #+RESULTS:
 : (1 2 3)
 
-Keep only elements which satisfy a given PRED, and stop the transduction as soon
-as any element fails the test.
+=take-while=: Keep only elements which satisfy a given PRED, and stop the
+transduction as soon as any element fails the test.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -410,7 +410,7 @@ as any element fails the test.
 
 *** uncons, concatenate, flatten
 
-Split up a transduction of cons cells.
+=uncons=: Split up a transduction of cons cells.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -420,7 +420,8 @@ Split up a transduction of cons cells.
 #+RESULTS:
 : (:A 1 :B 2 :C 3)
 
-Concatenate all the sublists, subvectors, or substrings in the transduction.
+=concatenate=: Concatenate all the sublists, subvectors, or substrings in the
+transduction.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -439,7 +440,7 @@ Concatenate all the sublists, subvectors, or substrings in the transduction.
 #+RESULTS:
 : h!e!l!l!o!t!h!e!r!e
 
-Entirely flatten all lists in the transduction, regardless of nesting.
+=flatten=: Entirely flatten all lists in the transduction, regardless of nesting.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -451,8 +452,8 @@ Entirely flatten all lists in the transduction, regardless of nesting.
 
 *** segment, window, group-by
 
-Partition the input into lists of N items. If the input stops, flush any
-accumulated state, which may be shorter than N.
+=segment=: Partition the input into lists of N items. If the input stops, flush
+any accumulated state, which may be shorter than N.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -462,9 +463,9 @@ accumulated state, which may be shorter than N.
 #+RESULTS:
 : ((1 2 3) (4 5))
 
-Yield N-length windows of overlapping values. This is different from ~segment~
-which yields non-overlapping windows. If there were fewer items in the input
-than N, then this yields nothing.
+=window=: Yield N-length windows of overlapping values. This is different from
+~segment~ which yields non-overlapping windows. If there were fewer items in the
+input than N, then this yields nothing.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -474,9 +475,9 @@ than N, then this yields nothing.
 #+RESULTS:
 : ((1 2 3) (2 3 4) (3 4 5))
 
-Group the input stream into sublists via some function F. The cutoff criterion
-is whether the return value of F changes between two consecutive elements of the
-transduction.
+=group-by=: Group the input stream into sublists via some function F. The cutoff
+criterion is whether the return value of F changes between two consecutive
+elements of the transduction.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -488,7 +489,7 @@ transduction.
 
 *** intersperse, enumerate, step, scan
 
-Insert an ELEM between each value of the transduction.
+=intersperse=: Insert an ELEM between each value of the transduction.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -498,7 +499,8 @@ Insert an ELEM between each value of the transduction.
 #+RESULTS:
 : (1 0 2 0 3)
 
-Index every value passed through the transduction into a cons pair. Starts at 0.
+=enumrate=: Index every value passed through the transduction into a cons pair.
+Starts at 0.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -508,7 +510,7 @@ Index every value passed through the transduction into a cons pair. Starts at 0.
 #+RESULTS:
 : ((0 . "a") (1 . "b") (2 . "c"))
 
-Only yield every Nth element of the transduction. The first element of the
+=step=: Only yield every Nth element of the transduction. The first element of the
 transduction is always included.
 
 #+begin_src lisp :results verbatim :exports both
@@ -519,8 +521,8 @@ transduction is always included.
 #+RESULTS:
 : (1 3 5 7 9)
 
-Build up successsive values from the results of previous applications of a given
-function F.
+=scan=: Build up successsive values from the results of previous applications of a
+given function F.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -532,7 +534,7 @@ function F.
 
 *** once
 
-Inject some ITEM onto the front of the transduction.
+=once=: Inject some ITEM onto the front of the transduction.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -547,9 +549,9 @@ Inject some ITEM onto the front of the transduction.
 
 *** log
 
-Call some LOGGER function for each step of the transduction. The LOGGER must
-accept the running results and the current element as input. The original items
-of the transduction are passed through as-is.
+=log=: Call some LOGGER function for each step of the transduction. The LOGGER
+must accept the running results and the current element as input. The original
+items of the transduction are passed through as-is.
 
 #+begin_src lisp :results output :exports both
 (in-package :transducers)
@@ -568,8 +570,8 @@ in this case ~cons~, thus a list.
 
 *** sexp
 
-Interpret the data stream as S-expressions, yielding one at a time. Can either process
-a stream of individual characters directly from a string...
+=sexp=: Interpret the data stream as S-expressions, yielding one at a time. Can
+either process a stream of individual characters directly from a string...
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -591,7 +593,7 @@ a stream of individual characters directly from a string...
 
 *** from-csv, into-csv
 
-Interpret the data stream as CSV data.
+=from-csv=: Interpret the data stream as CSV data.
 
 The first item found is assumed to be the header list, and it will be used to
 construct useable hashtables for all subsequent items.
@@ -609,9 +611,9 @@ strings. If you want numbers, you will need to further parse them yourself.
 #+RESULTS:
 : ("Alice" "Bob")
 
-Given a sequence of HEADERS, rerender each item in the data stream into a CSV
-string. It's assumed that each item in the transduction is a hash table whose
-keys are strings that match the values found in HEADERS.
+=into-csv=: Given a sequence of HEADERS, rerender each item in the data stream
+into a CSV string. It's assumed that each item in the transduction is a hash
+table whose keys are strings that match the values found in HEADERS.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -622,10 +624,11 @@ keys are strings that match the values found in HEADERS.
 
 #+RESULTS:
 : ("Name,Age" "Alice,35" "Bob,26")
+
 *** safe
 
-Given a transducer that may error, wrap it in =restart-case= to provide various
-ways of skipping or handling that error.
+=safe:= Given a transducer that may error, wrap it in =restart-case= to provide
+various ways of skipping or handling that error.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -647,7 +650,7 @@ short-circuit.
 
 *** cons, snoc
 
-Collect all results as a list.
+=cons=: Collect all results as a list.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -657,8 +660,8 @@ Collect all results as a list.
 #+RESULTS:
 : (1 2 3)
 
-Collect all results as a list, but results are reversed. In theory, slightly
-more performant than ~cons~ since it performs no final reversal.
+=snoc=: Collect all results as a list, but results are reversed. In theory,
+slightly more performant than ~cons~ since it performs no final reversal.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -670,7 +673,7 @@ more performant than ~cons~ since it performs no final reversal.
 
 *** vector, bit-vector
 
-Collect a stream of values into a vector.
+=vector=: Collect a stream of values into a vector.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -680,7 +683,8 @@ Collect a stream of values into a vector.
 #+RESULTS:
 : #(1 2 3)
 
-If the elements are all either 0 or 1, you can reduce into a =bit-vector= instead:
+=bit-vector=: If the elements are all either 0 or 1, you can reduce into a
+=bit-vector= instead:
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -692,8 +696,9 @@ If the elements are all either 0 or 1, you can reduce into a =bit-vector= instea
 
 *** string, base-string
 
-Collect a stream of characters into a single string. The result is the ideal
-=(simple-array character (*))= type.
+=string=: Collect a stream of characters into a single string. The result is the
+ideal =(simple-array character (*))= type, typically the most performant form of a
+string.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -703,9 +708,9 @@ Collect a stream of characters into a single string. The result is the ideal
 #+RESULTS:
 : I SEE 富士山.
 
-However, if you know your source characters are all ASCII (rather, the =base-char=
-range for your particular compiler), then =base-string= often has much lower
-memory consumption:
+=base-string=: However, if you know your source characters are all ASCII (rather,
+the =base-char= range for your particular compiler), then =base-string= often has
+much lower memory consumption:
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -717,7 +722,7 @@ memory consumption:
 
 *** hash-table
 
-Collect a stream of key-value cons pairs into a hash table.
+=hash-table=: Collect a stream of key-value cons pairs into a hash table.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -727,9 +732,9 @@ Collect a stream of key-value cons pairs into a hash table.
 #+RESULTS:
 : #<COMMON-LISP:HASH-TABLE :TEST EQUAL :COUNT 3 {1004E83BF3}>
 
-*** count, quantities
+*** count, quantities, ratio
 
-Count the number of elements that made it through the transduction.
+=count=: Count the number of elements that made it through the transduction.
 
 #+begin_src lisp :exports both
 (in-package :transducers)
@@ -739,8 +744,8 @@ Count the number of elements that made it through the transduction.
 #+RESULTS:
 : 5
 
-Count the occurrences of every item in the transduction, given some equality
-predicate.
+=quantities=: Count the occurrences of every item in the transduction, given some
+equality predicate.
 
 #+begin_src lisp :exports both
 (in-package :transducers)
@@ -750,7 +755,18 @@ predicate.
 #+RESULTS:
 : #<COMMON-LISP:HASH-TABLE :TEST EQL :COUNT 5 {10094FE823}>
 
-*** average, median, ratio
+=ratio=: The percentage of items that satisfied a predicate. The final value will
+always be between 0 and 1.
+
+#+begin_src lisp :exports both
+(in-package :transducers)
+(transduce #'pass (ratio #'evenp) #(1 2 3 4 5 6))
+#+end_src
+
+#+RESULTS:
+: 1/2
+
+*** average, median
 
 =average=: Calculate the average value of all numeric elements in a transduction.
 
@@ -774,21 +790,10 @@ before the median is extracted.
 #+RESULTS:
 : 1
 
-=ratio=: The percentage of items that satisfied a predicate. The final value will
-always be between 0 and 1.
-
-#+begin_src lisp :exports both
-(in-package :transducers)
-(transduce #'pass (ratio #'evenp) #(1 2 3 4 5 6))
-#+end_src
-
-#+RESULTS:
-: 1/2
-
 *** any?, all?
 
-Yield =t= if any element in the transduction satisfies PRED. Short-circuits the
-transduction as soon as the condition is met.
+=any?=: Yield =t= if any element in the transduction satisfies PRED. Short-circuits
+the transduction as soon as the condition is met.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -798,8 +803,8 @@ transduction as soon as the condition is met.
 #+RESULTS:
 : T
 
-Yield =t= if all elements of the transduction satisfy PRED. Short-circuits with
-NIL if any element fails the test.
+=all?=: Yield =t= if all elements of the transduction satisfy PRED. Short-circuits
+with NIL if any element fails the test.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -808,11 +813,12 @@ NIL if any element fails the test.
 
 #+RESULTS:
 : T
+
 *** partition
 
-Given some predicate function, split the stream and collect its values into two
-lists, those items that passed the check, and those that failed. You must use
-=multiple-value-bind= or similar to receive both lists.
+=partition=: Given some predicate function, split the stream and collect its
+values into two lists, those items that passed the check, and those that failed.
+You must use =multiple-value-bind= or similar to receive both lists.
 
 #+begin_src lisp :exports both :results verbatim
 (in-package :transducers)
@@ -824,7 +830,7 @@ lists, those items that passed the check, and those that failed. You must use
 
 *** first, last, find
 
-Yield the first value of the transduction. As soon as this first value is
+=first=: Yield the first value of the transduction. As soon as this first value is
 yielded, the entire transduction stops.
 
 #+begin_src lisp :exports both
@@ -835,7 +841,7 @@ yielded, the entire transduction stops.
 #+RESULTS:
 : 7
 
-Yield the last value of the transduction.
+=last=: Yield the last value of the transduction.
 
 #+begin_src lisp :exports both
 (in-package :transducers)
@@ -845,8 +851,8 @@ Yield the last value of the transduction.
 #+RESULTS:
 : 10
 
-Find the first element in the transduction that satisfies a given PRED. Yields
-NIL if no such element were found.
+=find=: Find the first element in the transduction that satisfies a given PRED.
+Yields NIL if no such element were found.
 
 #+begin_src lisp :exports both
 (in-package :transducers)
@@ -858,10 +864,10 @@ NIL if no such element were found.
 
 *** fold
 
-~fold~ is the fundamental reducer. ~fold~ creates an ad-hoc reducer based on
-a given 2-argument function. An optional SEED value can also be given as the
-initial accumulator value, which also becomes the return value in case there
-were no input left in the transduction.
+=fold=: The fundamental reducer. ~fold~ creates an ad-hoc reducer based on a given
+2-argument function. An optional SEED value can also be given as the initial
+accumulator value, which also becomes the return value in case there were no
+input left in the transduction.
 
 Functions like ~+~ and ~*~ are automatically valid reducers, because they yield sane
 values even when given 0 or 1 arguments. Other functions like ~cl:max~ cannot be
@@ -890,8 +896,8 @@ In Clojure this function is called =completing=.
 
 *** for
 
-Run through every item in a transduction for their side effects. Throws away all
-results and yields a final =t=.
+=for=: Run through every item in a transduction for their side effects. Throws
+away all results and yields a final =t=.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -909,9 +915,9 @@ pull from files and endless number generators.
 
 *** ints, random
 
-Yield all integers, beginning with START and advancing by an optional STEP value
-which can be positive or negative. If you only want a specific range within the
-transduction, then use ~take-while~ within your transducer chain.
+=ints=: Yield all integers, beginning with START and advancing by an optional STEP
+value which can be positive or negative. If you only want a specific range
+within the transduction, then use ~take-while~ within your transducer chain.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -921,7 +927,7 @@ transduction, then use ~take-while~ within your transducer chain.
 #+RESULTS:
 : (0 2 4 6 8 10 12 14 16 18)
 
-Yield an endless stream of random numbers, based on a given LIMIT.
+=random=: Yield an endless stream of random numbers, based on a given LIMIT.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -941,7 +947,7 @@ Yield an endless stream of random numbers, based on a given LIMIT.
 
 *** cycle, repeat, shuffle
 
-Yield the values of a given SEQ endlessly.
+=cycle=: Yield the values of a given SEQ endlessly.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -951,7 +957,7 @@ Yield the values of a given SEQ endlessly.
 #+RESULTS:
 : (1 2 3 1 2 3 1 2 3 1)
 
-Endlessly yield a given ITEM.
+=repeat=: Endlessly yield a given ITEM.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -961,7 +967,7 @@ Endlessly yield a given ITEM.
 #+RESULTS:
 : (9 9 9 9)
 
-Endlessly yield random elements from a given vector.
+=shuffle=: Endlessly yield random elements from a given vector.
 
 #+begin_src lisp :results verbatim :exports both
 (in-package :transducers)
@@ -983,8 +989,8 @@ Recall also that strings are vectors too:
 
 *** plist
 
-Yield key-value pairs from a Property List, usually known as a 'plist'. The
-pairs are passed as a cons cell.
+=plist=: Yield key-value pairs from a Property List, usually known as a 'plist'.
+The pairs are passed as a cons cell.
 
 #+begin_src lisp :exports both
 (in-package :transducers)
@@ -998,7 +1004,7 @@ See also the ~uncons~ transducer for another way to handle incoming cons cells.
 
 *** reversed
 
-Yield a vector's elements in reverse order.
+=reversed=: Yield a vector's elements in reverse order.
 
 #+begin_src lisp :exports both :results verbatim
 (in-package :transducers)
@@ -1022,8 +1028,8 @@ Recall that strings are also vectors.
 
 *** comp, const
 
-Function composition. You can pass as many functions as you like and they are
-applied from right to left.
+=comp=: Function composition as a macro. You can pass as many functions as you
+like and they are applied from right to left.
 
 #+begin_src lisp :exports both
 (in-package :transducers)
@@ -1047,7 +1053,7 @@ Notice here how ~drop~ is clearly applied first:
 #+RESULTS:
 : (4 5)
 
-Return a function that ignores its argument and returns ITEM instead.
+=const=: Return a function that ignores its argument and returns ITEM instead.
 
 #+begin_src lisp :exports both
 (in-package :transducers)
@@ -1098,6 +1104,21 @@ Counting words:
 #+RESULTS:
 : 3661
 
+** Shuffle a Vector
+
+Combine ~unique~, ~take~, and ~shuffle~ for the generalised effect of shuffling a
+vector.
+
+#+begin_src lisp :results verbatim :exports both
+(in-package :transducers)
+(transduce (comp #'unique (take 6))
+           #'vector
+           (shuffle #("Alice" "Bob" "Charles" "David" "Ellen" "Frank")))
+#+end_src
+
+#+RESULTS:
+: #("David" "Bob" "Charles" "Ellen" "Frank" "Alice")
+
 ** Reducing into Property Lists and Assocation Lists
 
 There is no special reducer function for plists, because none is needed. If you
@@ -1140,19 +1161,6 @@ retrieve fields we want.
 #+RESULTS:
 : 59/2
 
-** Sieve of Eratosthenes
-
-An ancient method of calculating Prime Numbers.
-
-#+begin_src lisp :results verbatim :exports both
-(in-package :transducers)
-(let ((xf (comp (inject (lambda (prime) (filter (lambda (n) (/= 0 (mod n prime))))))
-                (take 10))))
-  (cl:cons 2 (transduce xf #'cons (ints 3 :step 2))))
-#+end_src
-
-#+RESULTS:
-: (2 3 5 7 11 13 17 19 23 29 31)
 * Writing your own Primitives
 
 One of the advantages of the Transducers pattern is that there is no "magic".
@@ -1375,13 +1383,13 @@ reversed once before being yielded to the user.
 In (M) our "zero value" is the empty list. Otherwise, what would we be consing
 onto on the first pass of (I)?
 
-*** anyp - Short-circuiting
+*** any? - Short-circuiting
 
-=anyp= stops as soon as anything satisfies its predicate.
+=any?= stops as soon as anything satisfies its predicate.
 
 #+begin_src lisp :exports both
 (in-package :transducers)
-(transduce #'pass (anyp #'evenp) '(1 3 5 2 7 9))
+(transduce #'pass (any? #'evenp) '(1 3 5 2 7 9))
 #+end_src
 
 #+RESULTS:
@@ -1391,7 +1399,7 @@ Usage of =reduced= isn't limited to Transducers; Reducers can short-circuit the
 stream as well.
 
 #+begin_src lisp
-(defun anyp (pred)
+(defun any? (pred)
   (lambda (&optional (acc nil a-p) (input nil i-p))
     (cond ((and a-p i-p)
            ;; vvv (I) vvv

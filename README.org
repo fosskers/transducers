@@ -69,7 +69,7 @@ Looking for Transducers in other Lisps? Check out the [[https://github.com/fossk
     - [[#string-base-string][string, base-string]]
     - [[#hash-table][hash-table]]
     - [[#count-quantities-ratio][count, quantities, ratio]]
-    - [[#average-median][average, median]]
+    - [[#average-median-variance][average, median, variance]]
     - [[#any-all][any?, all?]]
     - [[#partition][partition]]
     - [[#first-last-find][first, last, find]]
@@ -85,6 +85,7 @@ Looking for Transducers in other Lisps? Check out the [[https://github.com/fossk
     - [[#reduced-reduced-reduced-val][reduced, reduced?, reduced-val]]
 - [[#example-gallery][Example Gallery]]
   - [[#reading-lines-from-a-file][Reading lines from a File]]
+  - [[#standard-deviation][Standard Deviation]]
   - [[#shuffle-a-vector][Shuffle a Vector]]
   - [[#reducing-into-property-lists-and-assocation-lists][Reducing into Property Lists and Assocation Lists]]
   - [[#json-calculating-average-age][JSON: Calculating average age]]
@@ -766,7 +767,7 @@ always be between 0 and 1.
 #+RESULTS:
 : 1/2
 
-*** average, median
+*** average, median, variance
 
 =average=: Calculate the average value of all numeric elements in a transduction.
 
@@ -789,6 +790,20 @@ before the median is extracted.
 
 #+RESULTS:
 : 1
+
+=variance=: Calculate the variance of a stream of values, given their mean.
+
+Using this to calculate Standard Deviation:
+
+#+begin_src lisp :exports both
+(in-package :transducers)
+(let* ((nums '(1 2 3 4 5 6 7 8 9 10))
+       (mean (transduce #'pass #'average nums)))
+  (sqrt (transduce #'pass (variance mean) nums)))
+#+end_src
+
+#+RESULTS:
+: 2.8722813
 
 *** any?, all?
 
@@ -1103,6 +1118,20 @@ Counting words:
 
 #+RESULTS:
 : 3661
+
+** Standard Deviation
+
+Standard Deviation is the square root of the Variance, therefore:
+
+#+begin_src lisp :exports both
+(in-package :transducers)
+(let* ((nums '(1 2 3 4 5 6 7 8 9 10))
+       (mean (transduce #'pass #'average nums)))
+  (sqrt (transduce #'pass (variance mean) nums)))
+#+end_src
+
+#+RESULTS:
+: 2.8722813
 
 ** Shuffle a Vector
 

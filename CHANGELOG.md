@@ -5,6 +5,7 @@
 #### Added
 
 - Reducer: `ratio` for the percentage of items that pass a predicate.
+- Reducer: `variance`, the result of which can be applied to `sqrt` to find Standard Deviation.
 - Source: `chain` to compose any number of Generators.
 - Source: The `generator` type and its functions have been exposed so that
   others can write their own Generators.

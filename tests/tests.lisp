@@ -55,7 +55,10 @@
   (is string-equal "b" (t:transduce #'t:pass #'t:median '("a" "c" "b")))
   (fail      (t:transduce #'t:pass #'t:median '()))
   (is = 1/2  (t:transduce #'t:pass (t:ratio #'evenp) #(1 2 3 4 5 6)))
-  (fail      (t:transduce #'t:pass (t:ratio #'evenp) #())))
+  (fail      (t:transduce #'t:pass (t:ratio #'evenp) #()))
+  (is = 2.8722813 (let* ((nums '(1 2 3 4 5 6 7 8 9 10))
+                         (mean (t:transduce #'t:pass #'t:average nums)))
+                    (sqrt (t:transduce #'t:pass (t:variance mean) nums)))))
 
 (define-test "Partitions"
   :parent reduction

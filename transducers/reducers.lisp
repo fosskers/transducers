@@ -81,8 +81,9 @@ reversal."
 (transduce #'pass #'count '(1 2 3 4 5))
 
 (defun median (&optional (acc nil a?) (input nil i?))
-  "Reducer: Calculate the median value of all numeric elements in a transduction.
-The elements are sorted once before the median is extracted.
+  "Reducer: Calculate the median value of all orderable elements (numbers,
+characters, strings) in a transduction. The elements are sorted once before the
+median is extracted.
 
 # Conditions
 
@@ -110,7 +111,9 @@ The elements are sorted once before the median is extracted.
 
 (defstruct avg
   "A helper struct for the `average' reducer."
+  ;; The number of items seen thusfar.
   (count 0 :type fixnum)
+  ;; Some running total of summed values, etc.
   (total 0 :type real))
 
 (defun average (&optional (acc nil a?) (input nil i?))
@@ -133,6 +136,29 @@ The elements are sorted once before the median is extracted.
 (transduce #'pass #'average '(1 2 3 4 5 6))
 #+nil
 (transduce (filter #'evenp) #'average '(1 3 5))
+
+(defun variance (mean)
+  "Reducer: Calculate the variance of a stream of values, given their mean.
+
+# Conditions
+
+- `empty-transduction': when no values made it through the transduction."
+  (lambda (&optional (acc nil a?) (input nil i?))
+    (cond ((and a? i?)
+           (incf (avg-count acc))
+           (incf (avg-total acc)
+                 (expt (- input mean) 2))
+           acc)
+          ((and a? (not i?))
+           (if (zerop (avg-count acc))
+               (error 'empty-transduction :msg "`variance' called on an empty transduction.")
+               (/ (avg-total acc) (avg-count acc))))
+          (t (make-avg :count 0 :total 0)))))
+
+#+nil
+(let* ((nums '(1 2 3 4 5 6 7 8 9 10))
+       (mean (transduce #'pass #'average nums)))
+  (sqrt (transduce #'pass (variance mean) nums)))
 
 (defun ratio (pred)
   "Reducer: The percentage of items that satisfied a predicate. The final value

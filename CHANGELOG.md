@@ -1,6 +1,6 @@
 # Transducers
 
-### Unreleased
+### 1.6.0 (2026-01-15)
 
 #### Added
 

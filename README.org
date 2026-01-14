@@ -85,6 +85,7 @@ Looking for Transducers in other Lisps? Check out the [[https://github.com/fossk
     - [[#reduced-reduced-reduced-val][reduced, reduced?, reduced-val]]
 - [[#example-gallery][Example Gallery]]
   - [[#reading-lines-from-a-file][Reading lines from a File]]
+  - [[#process-stdout-from-a-shell-call][Process STDOUT from a Shell Call]]
   - [[#standard-deviation][Standard Deviation]]
   - [[#shuffle-a-vector][Shuffle a Vector]]
   - [[#reducing-into-property-lists-and-assocation-lists][Reducing into Property Lists and Assocation Lists]]
@@ -1118,6 +1119,34 @@ Counting words:
 
 #+RESULTS:
 : 3661
+
+** Process STDOUT from a Shell Call
+
+#+begin_src lisp :exports both :results output
+(in-package :transducers)
+(with-open-stream (stream (sb-ext:process-output
+                           (sb-ext:run-program "/usr/bin/fd" '("lisp")
+                                               :output :stream
+                                               :wait nil)))
+  (transduce (map #'string-upcase) (for #'write-line) stream))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+FSET/FSET.LISP
+JZON/JZON.LISP
+RUN-TESTS.LISP
+TESTS/TESTS.LISP
+TRANSDUCERS/BENCHMARKS.LISP
+TRANSDUCERS/CONDITIONS.LISP
+TRANSDUCERS/DEPRECATED.LISP
+TRANSDUCERS/ENTRY.LISP
+TRANSDUCERS/PACKAGE.LISP
+TRANSDUCERS/REDUCERS.LISP
+TRANSDUCERS/SOURCES.LISP
+TRANSDUCERS/TRANSDUCERS.LISP
+TRANSDUCERS/UTILS.LISP
+#+end_example
 
 ** Standard Deviation
 

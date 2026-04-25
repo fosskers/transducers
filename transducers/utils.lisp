@@ -70,12 +70,12 @@ separator character."
              (declare (type fixnum start end))
              (cond ((and (< start 0) (< end 0)) acc)
                    ;; The separator was found at the very start of the string.
-                   ((and (zerop start) (eql separator (char string start)))
+                   ((and (zerop start) (char= separator (char string start)))
                     (cl:cons "" (cl:cons (subseq string (1+ start) (1+ end)) acc)))
                    ;; We got to the beginning without seeing another separator.
                    ((zerop start) (cl:cons (subseq string start (1+ end)) acc))
                    ;; Normal separator detection: collect the piece we've built.
-                   ((eql separator (char string start))
+                   ((char= separator (char string start))
                     (recurse (cl:cons (subseq string (1+ start) (1+ end)) acc)
                              (1- start)
                              (1- start)))

@@ -2,7 +2,7 @@
   (:use :cl)
   (:shadow #:set #:map)
   (:local-nicknames (#:t #:transducers)
-                    (#:s #:fset))
+                    (#:s #:fset2))
   (:export #:set #:map #:seq #:bag)
   (:documentation "Fset extensions for Transducers."))
 

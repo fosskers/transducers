@@ -1,5 +1,14 @@
 # Transducers
 
+### Unreleased
+
+#### Changed
+
+- fset: Now uses the newer `fset2` package underneath. This requires at least
+  version `2.4.4` of the [`fset`][fset] library.
+
+[fset]: https://gitlab.common-lisp.net/fset/fset
+
 ### 1.6.0 (2026-01-15)
 
 #### Added

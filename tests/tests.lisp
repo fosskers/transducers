@@ -291,14 +291,14 @@
   (is equal "10,000" (gethash "Money" (t:transduce #'t:from-csv #'t:first '("Name,Money,Age" "Colin,\"10,000\",37")))))
 
 (define-test "Fset: Immutable Collections"
-  (let ((set (fset:set 1 2 3 1)))
-    (is fset:equal? set (t:transduce #'t:pass #'s:set set)))
-  (let ((map (fset:map (:a 1) (:b 2) (:c 3))))
-    (is fset:equal? map (t:transduce #'t:pass #'s:map map)))
-  (let ((seq (fset:seq 1 2 3)))
-    (is fset:equal? seq (t:transduce #'t:pass #'s:seq seq)))
-  (let ((bag (fset:bag 1 2 3 1)))
-    (is fset:equal? bag (t:transduce #'t:pass #'s:bag bag))))
+  (let ((set (fset2:set 1 2 3 1)))
+    (is fset2:equal? set (t:transduce #'t:pass #'s:set set)))
+  (let ((map (fset2:map (:a 1) (:b 2) (:c 3))))
+    (is fset2:equal? map (t:transduce #'t:pass #'s:map map)))
+  (let ((seq (fset2:seq 1 2 3)))
+    (is fset2:equal? seq (t:transduce #'t:pass #'s:seq seq)))
+  (let ((bag (fset2:bag 1 2 3 1)))
+    (is fset2:equal? bag (t:transduce #'t:pass #'s:bag bag))))
 
 #+nil
 (test 'transducers/tests)

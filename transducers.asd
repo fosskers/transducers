@@ -23,7 +23,7 @@
   :description "JSON extension for Transducers.")
 
 (defsystem "transducers/fset"
-  :depends-on (:transducers :fset)
+  :depends-on (:transducers (:version :fset "2.4.4"))
   :components ((:module "fset" :components ((:file "fset"))))
   :description "Fset extension for Transducers.")
 

@@ -18,11 +18,13 @@
   :in-order-to ((test-op (test-op :transducers/tests))))
 
 (defsystem "transducers/jzon"
+  :version "1.7.0"
   :depends-on (:transducers :com.inuoe.jzon :trivia)
   :components ((:module "jzon" :components ((:file "jzon"))))
   :description "JSON extension for Transducers.")
 
 (defsystem "transducers/fset"
+  :version "1.7.0"
   :depends-on (:transducers (:version :fset "2.4.4"))
   :components ((:module "fset" :components ((:file "fset"))))
   :description "Fset extension for Transducers.")

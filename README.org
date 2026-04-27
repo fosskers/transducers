@@ -265,11 +265,14 @@ Reducers are provided for each of its main types: ~set~, ~map~, ~seq~, and ~bag~
 #+begin_src lisp :exports both
 (in-package :transducers)
 
-(transduce (map #'1+) #'transducers/fset:set (fset:set 1 2 3 1))
+(transduce (map #'1+) #'transducers/fset:set (fset2:set 1 2 3 1))
 #+end_src
 
 #+RESULTS:
 : #{ 2 3 4 }
+
+Note that as of =1.7.0=, =tranducers/fset= uses the =fset2= package, now the preferred
+interface of the original author.
 
 * API
 

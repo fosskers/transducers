@@ -1,6 +1,8 @@
 # Transducers
 
-### Unreleased
+### 1.7.0 (2026-04-27)
+
+Happy Golden Week!
 
 #### Changed
 

@@ -51,18 +51,22 @@ Looking for Transducers in other Lisps? Check out the [[https://github.com/fossk
   - [[#fset-immutable-collections][Fset: Immutable Collections]]
 - [[#api][API]]
   - [[#transducers][Transducers]]
-    - [[#pass-map][pass, map]]
-    - [[#filter-filter-map][filter, filter-map]]
-    - [[#unique-unique-by-dedup][unique, unique-by, dedup]]
-    - [[#drop-drop-while-take-take-while][drop, drop-while, take, take-while]]
-    - [[#uncons-concatenate-flatten][uncons, concatenate, flatten]]
-    - [[#segment-window-group-by][segment, window, group-by]]
-    - [[#intersperse-enumerate-step-scan][intersperse, enumerate, step, scan]]
-    - [[#once][once]]
-    - [[#log][log]]
-    - [[#sexp][sexp]]
-    - [[#from-csv-into-csv][from-csv, into-csv]]
-    - [[#safe][safe]]
+    - [[#standard][Standard]]
+      - [[#pass-map][pass, map]]
+      - [[#filter-filter-map][filter, filter-map]]
+      - [[#unique-unique-by-dedup][unique, unique-by, dedup]]
+      - [[#drop-drop-while-take-take-while][drop, drop-while, take, take-while]]
+      - [[#uncons-concatenate-flatten][uncons, concatenate, flatten]]
+      - [[#segment-window-group-by][segment, window, group-by]]
+      - [[#intersperse-enumerate-step-scan][intersperse, enumerate, step, scan]]
+      - [[#once][once]]
+      - [[#log][log]]
+    - [[#higher-order][Higher-order]]
+      - [[#safe][safe]]
+      - [[#branch][branch]]
+    - [[#domain-specific][Domain-specific]]
+      - [[#sexp][sexp]]
+      - [[#from-csv-into-csv][from-csv, into-csv]]
   - [[#reducers][Reducers]]
     - [[#cons-snoc][cons, snoc]]
     - [[#vector-bit-vector][vector, bit-vector]]
@@ -288,7 +292,10 @@ transducers, like ~take~, can short-circuit.
 
 Multiple transducer functions can be chained together with ~comp~.
 
-*** pass, map
+
+
+*** Standard
+**** pass, map
 
 =pass=: Just pass along each value of the transduction.
 
@@ -310,7 +317,7 @@ Multiple transducer functions can be chained together with ~comp~.
 #+RESULTS:
 : (2 3 4)
 
-*** filter, filter-map
+**** filter, filter-map
 
 =filter=: Only keep elements from the transduction that satisfy PRED.
 
@@ -333,7 +340,7 @@ keep results that are non-nil.
 #+RESULTS:
 : (2 5 8)
 
-*** unique, unique-by, dedup
+**** unique, unique-by, dedup
 
 =unique=: Only allow values to pass through the transduction once each. Stateful;
 this uses a set internally so could get quite heavy if you're not careful.
@@ -370,7 +377,7 @@ get quite heavy if you're not careful.
 #+RESULTS:
 : (1 2 3 4 3)
 
-*** drop, drop-while, take, take-while
+**** drop, drop-while, take, take-while
 
 =drop=: Drop the first N elements of the transduction.
 
@@ -413,7 +420,7 @@ transduction as soon as any element fails the test.
 #+RESULTS:
 : (2 4 6 8)
 
-*** uncons, concatenate, flatten
+**** uncons, concatenate, flatten
 
 =uncons=: Split up a transduction of cons cells.
 
@@ -455,7 +462,7 @@ transduction.
 #+RESULTS:
 : (1 2 3 0 4 5 6 0 7 8 9 0)
 
-*** segment, window, group-by
+**** segment, window, group-by
 
 =segment=: Partition the input into lists of N items. If the input stops, flush
 any accumulated state, which may be shorter than N.
@@ -492,7 +499,7 @@ elements of the transduction.
 #+RESULTS:
 : ((2 4 6) (7 9 1) (2 4 6) (3))
 
-*** intersperse, enumerate, step, scan
+**** intersperse, enumerate, step, scan
 
 =intersperse=: Insert an ELEM between each value of the transduction.
 
@@ -537,7 +544,7 @@ given function F.
 #+RESULTS:
 : (0 1 3 6 10)
 
-*** once
+**** once
 
 =once=: Inject some ITEM onto the front of the transduction.
 
@@ -552,7 +559,7 @@ given function F.
 #+RESULTS:
 : (HELLO 11 12)
 
-*** log
+**** log
 
 =log=: Call some LOGGER function for each step of the transduction. The LOGGER
 must accept the running results and the current element as input. The original
@@ -572,8 +579,56 @@ items of the transduction are passed through as-is.
 
 These are STDOUT results. The actual return value is the result of the reducer,
 in this case ~cons~, thus a list.
+*** Higher-order
 
-*** sexp
+Transducers which themselves consume other transduction chains as arguments.
+
+**** safe
+
+=safe:= Given a transducer that may error, wrap it in =restart-case= to provide
+various ways of skipping or handling that error.
+
+#+begin_src lisp :results verbatim :exports both
+(in-package :transducers)
+(handler-bind ((error #'(lambda (c) (invoke-restart 'next-item))))
+  (transduce (safe (map (lambda (item) (if (= item 1) (error "Mercy!") item))))
+             #'cons '(0 1 2 3)))
+#+end_src
+
+#+RESULTS:
+: (0 2 3)
+
+**** branch
+
+=branch=: Split a transduction chain based on a predicate. This produces a kind of
+diamond pattern of data flow within the transduction:
+
+#+begin_example
+     /4a-5a-6a\
+1-2-3          7-8-9
+     \4b-5b---/
+#+end_example
+
+Assuming that the top branch is some composition of three transducer steps, and
+the bottom branch is a composition of two. Naturally, if you have other steps
+beyond the fork point (Step 7 above), you must ensure that they can handle the
+return values of both sides.
+
+#+begin_src lisp :results verbatim :exports both
+(transduce (comp (map #'string-upcase)
+                 (branch (lambda (word) (evenp (length word)))
+                         (map #'reverse)
+                         (map #'string-capitalize))
+                 (map (lambda (s) (string-trim " " s))))
+           #'cons
+           '(" waiting " " hungry " " within " " the " " toronto " " airport "))
+#+end_src
+
+#+RESULTS:
+: ("Waiting" "YRGNUH" "NIHTIW" "The" "Toronto" "Airport")
+
+*** Domain-specific
+**** sexp
 
 =sexp=: Interpret the data stream as S-expressions, yielding one at a time. Can
 either process a stream of individual characters directly from a string...
@@ -596,7 +651,7 @@ either process a stream of individual characters directly from a string...
 #+RESULTS:
 : ("(+ 1 1)" "(+ 2 2)")
 
-*** from-csv, into-csv
+**** from-csv, into-csv
 
 =from-csv=: Interpret the data stream as CSV data.
 
@@ -629,21 +684,6 @@ table whose keys are strings that match the values found in HEADERS.
 
 #+RESULTS:
 : ("Name,Age" "Alice,35" "Bob,26")
-
-*** safe
-
-=safe:= Given a transducer that may error, wrap it in =restart-case= to provide
-various ways of skipping or handling that error.
-
-#+begin_src lisp :results verbatim :exports both
-(in-package :transducers)
-(handler-bind ((error #'(lambda (c) (invoke-restart 'next-item))))
-  (transduce (safe (map (lambda (item) (if (= item 1) (error "Mercy!") item))))
-             #'cons '(0 1 2 3)))
-#+end_src
-
-#+RESULTS:
-: (0 2 3)
 
 ** Reducers
 

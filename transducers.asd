@@ -10,6 +10,7 @@
                  (:file "deprecated")
                  (:file "utils")
                  (:file "transducers")
+                 (:file "higher")
                  (:file "reducers")
                  (:file "sources")
                  (:file "entry")
